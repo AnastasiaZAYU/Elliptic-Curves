@@ -5,7 +5,7 @@ class EllipticCurve:
     self.a = int(a, 16) % self.p
     self.b = int(b, 16) % self.p
     self.n = int(n, 16) % self.p
-    if (4 * self.a**3 + 27 * self.b**2) == 0:
+    if (4 * self.a**3 + 27 * self.b**2) % self.p == 0:
       print("Помилка: крива є сингулярною.")
 
   def IsOnCurve(curve, X, Y, Z=None):

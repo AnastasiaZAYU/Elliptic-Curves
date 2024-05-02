@@ -16,11 +16,15 @@ class CurvePoint:
     return CurvePoint(Point.curve, 0, 1, 0)
 
   def ComparePoints(Point1, Point2):
-    if Point1.X != Point2.X:
+    z_inv1 = 1
+    z_inv2 = 1
+    if Point1.Z != None:
+        z_inv1 = pow(Point1.Z, -1, Point1.curve.p)
+    if Point2.Z != None:
+        z_inv2 = pow(Point2.Z, -1, Point2.curve.p)
+    if Point1.X * z_inv1 % Point1.curve.p != Point2.X * z_inv2 % Point2.curve.p:
       return False
-    if Point1.Y != Point2.Y:
-      return False
-    if Point1.Z != Point2.Z:
+    if Point1.Y * z_inv1 % Point1.curve.p != Point2.Y * z_inv2 % Point2.curve.p:
       return False
     return True
 
@@ -61,10 +65,8 @@ class CurvePoint:
     X_ = 2 * H * S % q
     Y_ = (W * (4 * B - H) - 8 * Y**2 * S**2) % q
     Z_ = 8 * S**3 % q
-    new_Point = CurvePoint(Point.curve, X_, Y_, Z_).ToAffine()
-    if Point.Z == None:
-      return new_Point
-    return new_Point.ToProjective()
+    new_Point = CurvePoint(Point.curve, X_, Y_, Z_)
+    return new_Point
 
   def PointAdd(Point1, Point2):
     X1, Y1, Z1 = Point1.X, Point1.Y, Point1.Z
@@ -95,10 +97,8 @@ class CurvePoint:
     X3 = V * A % q
     Y3 = (U * (V**2 * V2 - A) - V**3 * U2) % q
     Z3 = V**3 * W % q
-    new_Point = CurvePoint(Point1.curve, X3, Y3, Z3).ToAffine()
-    if Point1.Z == None and Point2.Z == None:
-      return new_Point
-    return new_Point.ToProjective()
+    new_Point = CurvePoint(Point1.curve, X3, Y3, Z3)
+    return new_Point
 
   def PointMultiply(Point, k):
     R0 = Point.POINT_AT_INFINITY()
@@ -113,6 +113,4 @@ class CurvePoint:
       else:
         R0 = R0.PointAdd(R1)
         R1 = R1.PointDouble()
-    if Point.Z == None:
-      return R0.ToAffine()
     return R0
